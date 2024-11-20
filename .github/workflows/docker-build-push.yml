@@ -17,13 +17,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-
+      # 3. Normalize and Build Docker Image
       - name: Build Docker Image
-        run: | 
-          echo "Secrets ${{ secrets.DOCKER_USERNAME }} "
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.repository }}:latest .
+        run: |
+          DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t $DOCKER_USERNAME/cinema-app:latest .
 
+      # 4. Push Docker Image
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.repository }}:latest
+          DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          docker push $DOCKER_USERNAME/cinema-app:latest    
+
+
+      

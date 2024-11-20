@@ -1,14 +1,14 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Image #Nma workflow
 
-on:
+on: #Evento
   push:
     branches:
       - main
 
-jobs:
-  build-and-push:
+jobs: 
+  build-and-push: #Name Runner
     runs-on: ubuntu-latest
-    steps:
+    steps:      #Step inicial
       - name: Checkout Code
         uses: actions/checkout@v3
 

@@ -1,33 +1,51 @@
-name: Build and Push Docker Image #Nma workflow
+name: Construir, Probar y Empujar Imagen Docker
 
-on: #Evento
+on:
   push:
     branches:
       - main
 
-jobs: 
-  build-and-push: #Name Runner 
+jobs:
+  build-and-push:
     runs-on: ubuntu-latest
-    steps:      #Step inicial
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Clona el repositorio para obtener el código fuente
+          fetch-depth: 0
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          # Configura Node.js versión 18 para el entorno de ejecución
+
+      - run: npm install
+        # Instala las dependencias del proyecto según el package.json
+
+      - run: npm run test
+        # Ejecuta las pruebas unitarias definidas en el script "test" de package.json
+
+      - uses: aquasecurity/trivy-action@v1
+        with:
+          image-ref: $DOCKER_USERNAME/cinema-app:latest
+          scan-type: image
+          fail-threshold: high
+          # Escanea la imagen Docker en busca de vulnerabilidades usando Trivy.
+          # Falla la ejecución si se encuentran vulnerabilidades de alto riesgo.
+
+      - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      # 3. Normalize and Build Docker Image
-      - name: Build Docker Image
-        run: |
+          # Inicia sesión en Docker Hub para poder empujar la imagen
+
+      - run: |
           DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
           docker build -t $DOCKER_USERNAME/cinema-app:latest .
+          # Construye la imagen Docker a partir del Dockerfile en el directorio actual
 
-      # 4. Push Docker Image
-      - name: Push Docker Image
-        run: |
+      - run: |
           DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
-          docker push $DOCKER_USERNAME/cinema-app:latest    
-
-
+          docker push $DOCKER_USERNAME/cinema-app:latest
+          # Empuja la imagen Docker construida al registro de Docker Hub
       

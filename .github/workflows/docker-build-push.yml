@@ -1,13 +1,12 @@
 name: Build and Push Docker Image # Workflow name
 
-# Trigger workflow on pushes to the main branch
 on: 
   push:
     branches:
       - main
 
 jobs: 
-  build-and-push: # Job to build and push Docker image
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout the repository code
@@ -24,21 +23,33 @@ jobs:
       # Step 3: Normalize and Build Docker Image
       - name: Build Docker Image
         run: |
-          # Convert Docker username to lowercase (for consistency)
+          echo "Starting Docker build..."
+          # Convert Docker username to lowercase
           DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "Using Docker username: $DOCKER_USERNAME"
+
+          # Build the Docker image
           docker build -t $DOCKER_USERNAME/cinema-app:latest .
+          echo "Docker build completed."
+
+          # List Docker images for debugging
+          echo "Listing Docker images..."
+          docker images
 
       # Step 4: Push Docker Image
       - name: Push Docker Image
         run: |
+          echo "Starting Docker push..."
           DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
           docker push $DOCKER_USERNAME/cinema-app:latest
+          echo "Docker push completed."
 
       # Step 5: Unit Tests for Docker Workflow
       - name: Unit Test Docker Workflow
         run: |
           echo "Running pipeline tests..."
-          # Test: Ensure DOCKER_USERNAME is non-empty and lowercase
+
+          # Test 1: Ensure DOCKER_USERNAME is non-empty and lowercase
           DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
           if [ -z "$DOCKER_USERNAME" ]; then
             echo "Error: DOCKER_USERNAME is empty"
@@ -50,19 +61,24 @@ jobs:
           fi
           echo "DOCKER_USERNAME validation passed"
 
-          # Test: Validate Docker image build
+          # Test 2: Validate Docker image build
+          echo "Validating Docker image build..."
+          docker images
           docker images | grep "$DOCKER_USERNAME/cinema-app:latest" > /dev/null
           if [ $? -ne 0 ]; then
-            echo "Error: Docker image not built successfully"
+            echo "Error: Docker image $DOCKER_USERNAME/cinema-app:latest not found"
             exit 1
           fi
           echo "Docker image build validation passed"
 
-          # Test: Validate Docker image push (mock)
-          echo "Validating Docker push with mock test..."
+          # Test 3: Validate Docker image push (mock test for debugging)
+          echo "Validating Docker push (mock test)..."
           MOCK_PUSH_RESULT=0  # Simulate a successful push
           if [ $MOCK_PUSH_RESULT -ne 0 ]; then
             echo "Error: Docker image push failed"
             exit 1
           fi
           echo "Docker push validation passed"
+
+          # Final check
+          echo "All pipeline tests passed successfully."

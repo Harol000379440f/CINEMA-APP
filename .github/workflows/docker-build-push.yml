@@ -1,4 +1,4 @@
-name: Build and Push Docker Image # Workflow name
+nname: Build and Push Docker Image # Workflow name
 
 on: 
   push:
@@ -24,7 +24,6 @@ jobs:
       - name: Build Docker Image
         run: |
           echo "Starting Docker build..."
-          # Convert Docker username to lowercase
           DOCKER_USERNAME=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
           echo "Using Docker username: $DOCKER_USERNAME"
 
@@ -61,10 +60,9 @@ jobs:
           fi
           echo "DOCKER_USERNAME validation passed"
 
-          # Test 2: Validate Docker image build
+          # Test 2: Validate Docker image build using docker inspect
           echo "Validating Docker image build..."
-          docker images
-          docker images | grep "$DOCKER_USERNAME/cinema-app:latest" > /dev/null
+          docker inspect --type=image "$DOCKER_USERNAME/cinema-app:latest" > /dev/null 2>&1
           if [ $? -ne 0 ]; then
             echo "Error: Docker image $DOCKER_USERNAME/cinema-app:latest not found"
             exit 1

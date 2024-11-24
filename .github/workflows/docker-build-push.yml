@@ -32,7 +32,7 @@ jobs:
           # Ajusta los niveles de severidad según sea necesario
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          # Permite que el pipeline continúe a pesar de las vulnerabilidades
+          # Permite que el pipeline continúe a pesar de las vulnerabilidadess
           exit-code: 0
       - name: Publicar Imagen Docker
         if: success()

@@ -1,16 +1,16 @@
-name: Construir, Escanear y Publicar Imagen Docker
+name: Construir, Escanear y Publicar Imagen Docker #Name WorkFlow
 
-on:
+on:    #Trigger or event
   push:
-    branches:
+    branches:  #Branches For the event
       - main
       - develop
       - 'feature/*'
       - 'release/*'
-jobs:
+jobs:  #Firts Job
   construir_escanear_publicar:
-    runs-on: ubuntu-latest
-    steps:
+    runs-on: ubuntu-latest   #Runner 1 
+    steps:                                     #Step firts
       - name: Clonar Código
         uses: actions/checkout@v3
       - name: Iniciar sesión en Docker Hub

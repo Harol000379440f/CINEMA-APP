@@ -27,7 +27,7 @@ jobs:  #Firts Job
           echo "Construcción de la imagen Docker completada."
           echo "Listando imágenes Docker disponibles..."
           docker images
-      - name: Escanear Imagen Docker con Trivy
+      - name: Escanear Imagen Docker con Trivy #analisis de imagen con trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.DOCKER_USERNAME }}/cinema-app:latest
